@@ -13,3 +13,6 @@ file_again = raw_input("> ") # collect another file name
 txt_again = open(file_again) # open that new file
 
 print txt_again.read() # use file's read to print the file's contents
+
+txt.close() # close both files
+txt_again.close()
