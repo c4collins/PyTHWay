@@ -2,7 +2,7 @@ from ex37data import *
 
 def start():
     """Asks for and receives direction about which list to print at any given time"""
-    print "What do you want to do?"
+    print "What definintions list do you wish to see?"
 
     definitions = {}
     
@@ -12,7 +12,7 @@ def start():
 
     for item in definitions:
         if len(item) < 2:
-            print "\t\t\tTo print the %s list, press:\t  %s" % (definitions[item],item)
+            print "\tTo print the %s list, press:\t  %s" % (definitions[item],item)
 
     which_list = raw_input('\t\tThen press <ENTER>\t')
     print_list(which_list,definitions)    
@@ -21,10 +21,8 @@ def print_list(which_list,definitions):
     """print the whichever list is chosen"""
     try:
         for item in eval(definitions[which_list+"_list"]):
-            if len(item) <= 2:
-                print "Keyword:\t%s\t\t%s" % (item)
-            else:
-                print "Keyword:\t%s\t\t%s" % (item[0],item[1])
+            print "Keyword:%s\t\t%s" % (item[0],item[1])
+            if len(item[2])>2:                            # Some definitions have examples
                 print "Usage Example:"
                 for ex_line in item[2]:
                     print "\t\t\t\t\t\t" + ex_line
