@@ -14,18 +14,18 @@ def start():
         if len(item) < 2:
             print "\tTo print the %s list, press:\t  %s" % (definitions[item],item)
 
-    which_list = raw_input('\t\tThen press <ENTER>\t')
+    which_list = raw_input('\tThen press <ENTER>\t').upper()
     print_list(which_list,definitions)    
 
 def print_list(which_list,definitions):
     """print the whichever list is chosen"""
     try:
         for item in eval(definitions[which_list+"_list"]):
-            print "Keyword:%s\t\t%s" % (item[0],item[1])
+            print "%s:   %s\t\t%s" % (definitions[which_list],item[0],item[1])
             if len(item[2])>2:                            # Some definitions have examples
-                print "Usage Example:"
+                print "\tUsage Example:"
                 for ex_line in item[2]:
-                    print "\t\t\t\t\t\t" + ex_line
+                    print "\t\t\t" + ex_line
             print "-"*79
     except KeyError:
         print "Sorry, that is not one of the lists."
