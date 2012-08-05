@@ -6,6 +6,7 @@ class CashRegister(object):
         self.items = {}     # Dict for building an inventory of the items and their costs 
         self.lastChargeAdded = 0    # Variable which contains the last amount added to the bill
         self.receiptItems = [] # List which will contain lists containing Item name and Quantity.
+        self.currencySymbol = "$"   # Localization
 
     def scanItem(self):
         scanItem = raw_input("What is the item?  >> ")
@@ -23,17 +24,24 @@ class CashRegister(object):
             self.items[item] = float(raw_input ("What is the price of 1 unit of %s?  >> " % item))
         self.total += self.items[item] * quantity
         self.lastChargeAdded = self.items[item] * quantity
-        self.receiptItems += (item, quantity)
+        self.receiptItems.append((item, quantity))
+
+    def currency(self,amount):
+        return "%s%.2f" % (self.currencySymbol,amount)
 
     def formatTotal(self):
         """Displays the total with a currency indicator."""
-        currencySymbol = "$"
-        return "The total is %s%.2f" % (currencySymbol,self.total)
+        return "The total is %s" % (self.currency(self.total))
 
     def printReceipt(self):
         """Prints a header; the items purchased, their quantity, and the total for each item; a subtotal, discounts, taxes, the total, the method of payment, payment details (incl. change if applicable), and finally a footer"""
-        header = "Connor's Cash-Only Emporium"
-        receipt = [header,self.receiptItems,self.formatTotal()]
+        receipt = []
+        receipt.append("Connor's Cash-Only Emporium")
+        for item in self.receiptItems:
+            formattedItem = "%.1f\t%s\t@ %s\t%s" % (float(item[1]), item[0],self.currency(self.items[item[0]]),self.currency(float(item[1])*self.items[item[0]]))
+            receipt.append(formattedItem)
+        receipt.append(self.formatTotal())
+        receipt.append("Thank you for shopping at\n\tConnor's Cash-Only Emporium\n")
         return receipt
 
 ############### END CashRegister OBJECT CLASS DEFINITION ################
@@ -45,5 +53,5 @@ while keepScanning:
     keepScanning = cr.scanItem()
 
 for line in cr.printReceipt():
-    print("\t")
+    print("\t"),
     print (line)
