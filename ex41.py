@@ -45,4 +45,5 @@ while keepScanning:
     keepScanning = cr.scanItem()
 
 for line in cr.printReceipt():
+    print("\t"),
     print (line)
