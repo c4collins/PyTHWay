@@ -28,7 +28,7 @@ class CashRegister(object):
 
         # Declaring variables that are created from functions
         
-        # Dict for building an inventory of the items and their costs from the filename passed here .csv
+        # Dict for building an inventory of the items and their costs from the filename passed here "filename+'.csv'"
         self.items      =   self.getInventory("ex41inventory")
 
         # Print the introductory text
@@ -45,6 +45,8 @@ To delete the last item added, you can use the command "void" at the "Which item
 To complete the transaction and print the receipt, you can use the command "total" at the "Which item?" prompt.
 """
     
+
+
     def getInventory(self, fileName):
         """Retreives the stored inventory data from the inventory datafile, """
         inventoryData = csv.reader(open(fileName+".csv", 'rb'), delimiter=',')
@@ -52,17 +54,19 @@ To complete the transaction and print the receipt, you can use the command "tota
 
         for row in inventoryData:
             if row[0] == 'name':
-                self.invTitlesCSV = row
+                self.invTitlesCSV = row # set the first row to a titles variable for printing the file later
             else:
-                self.currentInventory.append(row)
+                self.currentInventory.append(row) # add all the other rows to the current inventory
         
-        for item in self.currentInventory:
-            if item[3] == "FALSE":
-                itemLookup[item[0]] = float(item[1])
-            else:
+        for item in self.currentInventory:  # for every item, generate a price dict lookup
+            if item[3] == "FALSE":  # If Item isn't on sale
+                itemLookup[item[0]] = float(item[1]) # get the regular price
+            else:                   # otherwise, get the sale price
                 itemLookup[item[0]] = float(item[2])
 
-        return itemLookup
+        return itemLookup       # return the dict for looking up prices
+
+
 
     def scanMode(self):
         """Asks for input and directs the register how to deal with it."""
@@ -83,18 +87,54 @@ To complete the transaction and print the receipt, you can use the command "tota
             return True             # returning True continues the loop
                 
 
+
     def addItem(self, item, quantity):
         """Add an item to the bill, and set the lastChargeAdded to that amount.  If the item being added is not in the items Dict, the cash register asks for the price and adds it."""
         if item not in self.items:      # checks if the item already has a price
-            while True:
-                try:                    # if not, it asks for a price, 
-                    self.items[item] = float(raw_input ("What is the price of 1 unit of %s?  >> " % item))
-                    break
-                except ValueError:      # and will continue to ask until you give it one
-                    print "Sorry, that's not a proper decimal number.  The format should be like 4.69 "
-        self.total += self.items[item] * quantity           # increase the total sales price
-        self.lastChargeAdded = self.items[item] * quantity  # set the lastChargeAdded to this transaction
-        self.receiptItems.append((item, quantity))          # add this transaction to the receipt
+            print "That is not an item.  If you wish to add a new item, you must do it from Admin Mode."
+        else:                                                   # if it does...
+            self.total += self.items[item] * quantity           # increase the total sales price
+            self.lastChargeAdded = self.items[item] * quantity  # set the lastChargeAdded to this transaction
+            self.receiptItems.append((item, quantity))          # add this transaction to the receipt
+
+
+
+    def createItem(self, item):
+        """Adds a new item to the list of available items"""
+        newItem = [item,0,0,"FALSE",0]
+        while True:
+            try:                    # it asks for a price, 
+                newItem[1] = float(raw_input ("What is the regular price of 1 unit of %s?  >> " % item))
+                break
+            except ValueError:      # and will continue to ask until you give it one
+                print "Sorry, that's not a proper price.  The format should be like 4.69 "
+
+        while True:
+            try:
+                newItem[2] = float(raw_input ("What is the sale price of 1 unit of %s?  >> " % item))
+                break
+            except ValueError:
+                print "Sorry, that's not a proper price.  The format should be like 4.69 "
+        
+        onSale = raw_input("Is %s currently on sale?  ( y / n )  >> " % item)[:1]
+        if (onSale == "y") or (onSale == "Y"):
+            newItem[3] = "TRUE"
+        else:
+            newItem[3] = "FALSE"
+
+        while True:
+            try:
+                quantity = float(raw_input("How many %s are in stock?  >> " % item))
+                newItem[4] = quantity
+                break
+            except ValueError:
+                print "That is not a valie quantity.  Pretty much any number will do"
+        
+        if newItem[3] == "FALSE":
+             self.items[item] = newItem[1]
+        else:
+             self.items[item] = newItem[2]
+        self.currentInventory.append(newItem)
 
     def voidItem(self):
         """Voids the most recent transaction"""
@@ -105,29 +145,39 @@ To complete the transaction and print the receipt, you can use the command "tota
         except IndexError:  
             print "There is nothing to void, the list of items scanned is empty."
 
+
+
     def currency(self,amount):
         """takes a single number as an argument, returns a string of that number formatted as currency"""
         return "%s%.2f" % (self.currencySymbol,float(amount))
 
+
+
     def formatTotal(self):
         """Displays the total with a currency indicator."""
-        return "The total is %s" % (self.currency(self.total))
+        return "The subtotal is %s" % (self.currency(self.total))
+
+
 
     def printReceipt(self):
         """Prints a header; the items purchased, their quantity, and the total for each item; a subtotal, discounts, taxes, the total, the method of payment, payment details (incl. change if applicable), and finally a footer"""
         receipt = []
-        receipt.append("\t\t%s" % (self.storeName))    # This is a very simple header for the receipt
+        receipt.append("\t\t%s\n" % (self.storeName))    # This is a very simple header for the receipt
 
         for item in self.receiptItems:          # for each item scanned
-            formattedItem = "%10s  of  %s  @ %12s  is  %12s" % ("%.3f" % (item[1]),item[0].ljust(self.nameWidth)[:self.nameWidth], self.currency(self.items[item[0]]), self.currency(float(item[1])*self.items[item[0]])) 
+            formattedItem = "%10s  of  %s at %12s  is  %12s" % ("%.3f" % (item[1]),item[0].ljust(self.nameWidth)[:self.nameWidth], self.currency(self.items[item[0]]), self.currency(float(item[1])*self.items[item[0]])) 
             # create a string that contains -                   # the quantity      # The item name, to set width                   # The per-unit cost, and            # The total cost (per-unit cost * # of units)
             receipt.append(formattedItem)                           # add the formattedItem string to the receipt
 
         receipt.append(self.formatTotal().rjust(50 + self.nameWidth) + "\n")    # Display Subtotal
-        receipt.append("Thank you for shopping at:\t%s\n") % (self.storeName)   # This is a simple footer
+        receipt.append("Thank you for shopping at:\t%s\n" % (self.storeName))   # This is a simple footer
         return receipt
 
+
+
 ############### END CashRegister OBJECT CLASS DEFINITION ################
+
+
     
 cr = CashRegister()
 
@@ -138,3 +188,5 @@ while keepScanning:
 for line in cr.printReceipt():      # ask the CashRegister to end the transaction and print a receipt
     print("\t"),
     print (line)
+
+cr.createItem(raw_input("What item would you like to add?  >> "))
