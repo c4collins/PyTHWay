@@ -9,7 +9,7 @@ class CashRegister(object):
         self.currencySymbol = "$"   # Localization
 
     def scanItem(self):
-        scanItem = raw_input("What is the item?  >> ")
+        scanItem = raw_input("What is the item?  >> ")[:30]
         if scanItem == "total":
             print "\n"
             return False
@@ -29,19 +29,22 @@ class CashRegister(object):
     def currency(self,amount):
         return "%s%.2f" % (self.currencySymbol,amount)
 
-    def formatTotal(self):
-        """Displays the total with a currency indicator."""
-        return "The total is %s" % (self.currency(self.total))
-
     def printReceipt(self):
         """Prints a header; the items purchased, their quantity, and the total for each item; a subtotal, discounts, taxes, the total, the method of payment, payment details (incl. change if applicable), and finally a footer"""
         receipt = []
-        receipt.append("Connor's Cash-Only Emporium")
+        receipt.append("\t\tConnor's Cash-Only Emporium")
         for item in self.receiptItems:
-            formattedItem = "%.1f\t%s\t\t@ %s\t\t%s" % (float(item[1]), item[0],self.currency(self.items[item[0]]),self.currency(float(item[1])*self.items[item[0]]))
+            formattedItem = "%10s  of  %s  @ %12s  is  %12s" % (\
+            "%.3f" % (item[1]),\
+            item[0]+" "*(30-len(item[0])), \
+            self.currency(self.items[item[0]]),\
+            self.currency(float(item[1])*self.items[item[0]])\
+            )
+
             receipt.append(formattedItem)
-        receipt.append(self.formatTotal())
-        receipt.append("Thank you for shopping at\n\tConnor's Cash-Only Emporium\n")
+
+        receipt.append(self.currency(self.total).rjust(80))
+        receipt.append("Thank you for shopping at:\tConnor's Cash-Only Emporium\n")
         return receipt
 
 ############### END CashRegister OBJECT CLASS DEFINITION ################
