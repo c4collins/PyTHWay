@@ -1,0 +1,9 @@
+name,price,salePrice,onSale,quantity
+banana,0.49,0.39,FALSE,9999
+apple,0.29,0.1,FALSE,9999
+apricot,0.69,0.49,FALSE,9999
+alphabet soup,1.65,1.49,FALSE,9999
+chicken noodle soup,1.89,1.69,TRUE,9999
+eggs,1.69,1.59,FALSE,9999
+milk,4.69,3.99,FALSE,9999
+chocolate,1.09,0.59,FALSE,9999
