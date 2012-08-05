@@ -92,7 +92,7 @@ operator_list = [
     ('{}',       "Creates an empty hash/dict",       ("",)),
     ('@',       "Decorator expression",       ("",)),
     (',',       "list separator",       ("",)),
-    (':',       "",       ("",)),
+    (':',       "Indicates the start of an object definition.",       ("",)),
     ('.',       "Most often seen in dot notation of Object.methods",       ("",)),
     ('=',       "Equals (assigns object/value on right to object/variable on left)",       ("",)),
     (';',       "End of code line",       ("",)),
