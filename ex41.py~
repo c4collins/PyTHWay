@@ -26,6 +26,16 @@ class CashRegister(object):
         self.lastChargeAdded = self.items[item] * quantity
         self.receiptItems.append((item, quantity))
 
+    def voidItem(self):
+        """Voids the most recent transaction"""
+        print receiptItems[len(receiptItems)]
+
+
+
+
+
+
+
     def currency(self,amount):
         return "%s%.2f" % (self.currencySymbol,amount)
 

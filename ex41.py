@@ -13,6 +13,9 @@ class CashRegister(object):
         if scanItem == "total":
             print "\n"
             return False
+        else if scanItem == "void":
+            self.voidItem()
+            return True
         else: 
             scanQuantity = float(raw_input("How many are being purchased?  >> "))
             cr.addItem(scanItem, scanQuantity)
@@ -26,8 +29,22 @@ class CashRegister(object):
         self.lastChargeAdded = self.items[item] * quantity
         self.receiptItems.append((item, quantity))
 
+    def voidItem(self):
+        """Voids the most recent transaction"""
+        print receiptItems[len(receiptItems)]
+
+
+
+
+
+
+
     def currency(self,amount):
         return "%s%.2f" % (self.currencySymbol,amount)
+
+    def formatTotal(self):
+        """Displays the total with a currency indicator."""
+        return "The total is %s" % (self.currency(self.total))
 
     def printReceipt(self):
         """Prints a header; the items purchased, their quantity, and the total for each item; a subtotal, discounts, taxes, the total, the method of payment, payment details (incl. change if applicable), and finally a footer"""
@@ -43,7 +60,7 @@ class CashRegister(object):
 
             receipt.append(formattedItem)
 
-        receipt.append(self.currency(self.total).rjust(80))
+        receipt.append(self.formatTotal().rjust(80))
         receipt.append("Thank you for shopping at:\tConnor's Cash-Only Emporium\n")
         return receipt
 
