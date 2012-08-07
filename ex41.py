@@ -56,17 +56,18 @@ To complete the transaction and print the receipt, you can use the command "tota
 
             for row in inventoryData:
                 if row[0] == 'name':
-                    self.invTitlesCSV = row # set the first row to a titles variable for printing the file later
+                    print "Initializing inventory data..."
+                    pass                                    # skip the first row
                 else:
-                    self.currentInventory.append(row) # add all the other rows to the current inventory
+                    self.currentInventory.append(row)       # add all the other rows to the current inventory
         
-            for item in self.currentInventory:  # for every item, generate a price dict lookup
-                if item[3] == "FALSE":  # If Item isn't on sale
-                    itemLookup[item[0]] = float(item[1]) # get the regular price
-                else:                   # otherwise, get the sale price
+            for item in self.currentInventory:              # for every item, generate a price dict lookup
+                if item[3] == "FALSE":                      # If Item isn't on sale
+                    itemLookup[item[0]] = float(item[1])    # get the regular price
+                else:                                       # otherwise, get the sale price
                     itemLookup[item[0]] = float(item[2])
 
-        return itemLookup       # return the dict for looking up prices
+        return itemLookup                                   # return the dict for looking up prices
 
 
 
@@ -79,21 +80,25 @@ To complete the transaction and print the receipt, you can use the command "tota
         elif scanItem == "void":    # If the command 'void' is given, undo the last transaction processed
             self.voidItem()
             return True             # returning True continues the loop
+        elif scanItem == "createItem":
+            cr.createItem(raw_input("What item would you like to add?  >> "))
+            return True
         else:                       # Otherwise, assume the input is an item name
             try:
                 scanQuantity = float(raw_input("How many are being purchased?  >> "))
             except ValueError:
                 print "That is not a valid number, the quantity has defaulted to 1"
                 scanQuantity = 1
-            self.addItem(scanItem, scanQuantity) # add the item to the purchase
-            return True             # returning True continues the loop
+
+            self.addItem(scanItem, scanQuantity)    # add the item to the purchase
+            return True                             # returning True continues the loop
                 
 
 
     def addItem(self, item, quantity):
         """Add an item to the bill, and set the lastChargeAdded to that amount.  If the item being added is not in the items Dict, the cash register asks for the price and adds it."""
-        if item not in self.items:      # checks if the item already has a price
-            print "That is not an item.  If you wish to add a new item, you must do it from Admin Mode."
+        if item not in self.items:                              # checks if the item already has a price
+            print "That is not an item.  If you wish to add a new item, please enter createItem."
         else:                                                   # if it does...
             self.total += self.items[item] * quantity           # increase the total sales price
             self.lastChargeAdded = self.items[item] * quantity  # set the lastChargeAdded to this transaction
@@ -103,7 +108,7 @@ To complete the transaction and print the receipt, you can use the command "tota
 
     def createItem(self, item):
         """Adds a new item to the list of available items"""
-        newItem = [item,0,0,"FALSE",0]
+        newItem = [item,0,0,"FALSE",0,int(self.currentInventory[-1][5])+1]
         while True:
             try:                    # it asks for a price, 
                 newItem[1] = float(raw_input ("What is the regular price of 1 unit of %s?  >> " % item))
@@ -126,11 +131,10 @@ To complete the transaction and print the receipt, you can use the command "tota
 
         while True:
             try:
-                quantity = float(raw_input("How many %s are in stock?  >> " % item))
-                newItem[4] = quantity
+                newItem[4] = float(raw_input("How many %s are in stock?  >> " % item))
                 break
             except ValueError:
-                print "That is not a valie quantity.  Pretty much any number will do"
+                print "That is not a valid quantity.  Pretty much any number will do"
         
         if newItem[3] == "FALSE":
              self.items[item] = newItem[1]
@@ -139,6 +143,7 @@ To complete the transaction and print the receipt, you can use the command "tota
         self.currentInventory.append(newItem)
         self.addItemToInventory(newItem) 
         print newItem
+
 
     
     def addItemToInventory(self, newItem):
@@ -151,9 +156,9 @@ To complete the transaction and print the receipt, you can use the command "tota
 
     def voidItem(self):
         """Voids the most recent transaction"""
-        try:                        # unless there is nothing in the list of items to be included on the receipt
-            void = self.receiptItems.pop()      # remove the last item on the list
-            self.total -= self.items[void[0]] * void[1]     # reduce the total by the appropriate amount
+        try:                                                                    # unless there is nothing in the list of items to be included on the receipt
+            void = self.receiptItems.pop()                                      # remove the last item on the list
+            self.total -= self.items[void[0]] * void[1]                         # reduce the total by the appropriate amount
             print "%.3f of item: %s have been removed." % (void[1],void[0])     # print confirmation of the void
         except IndexError:  
             print "There is nothing to void, the list of items scanned is empty."
@@ -175,9 +180,9 @@ To complete the transaction and print the receipt, you can use the command "tota
     def printReceipt(self):
         """Prints a header; the items purchased, their quantity, and the total for each item; a subtotal, discounts, taxes, the total, the method of payment, payment details (incl. change if applicable), and finally a footer"""
         receipt = []
-        receipt.append("\t\t%s\n" % (self.storeName))    # This is a very simple header for the receipt
+        receipt.append("\t\t%s\n" % (self.storeName))               # This is a very simple header for the receipt
 
-        for item in self.receiptItems:          # for each item scanned
+        for item in self.receiptItems:                              # for each item scanned
             formattedItem = "%10s  of  %s at %12s  is  %12s" % ("%.3f" % (item[1]),item[0].ljust(self.nameWidth)[:self.nameWidth], self.currency(self.items[item[0]]), self.currency(float(item[1])*self.items[item[0]])) 
             # create a string that contains -                   # the quantity      # The item name, to set width                   # The per-unit cost, and            # The total cost (per-unit cost * # of units)
             receipt.append(formattedItem)                           # add the formattedItem string to the receipt
@@ -202,4 +207,4 @@ for line in cr.printReceipt():      # ask the CashRegister to end the transactio
     print("\t"),
     print (line)
 
-# ADMIN MODE COMMAND cr.createItem(raw_input("What item would you like to add?  >> "))
+# ADMIN MODE COMMAND 
