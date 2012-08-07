@@ -28,8 +28,9 @@ class CashRegister(object):
 
         # Declaring variables that are created from functions
         
-        # Dict for building an inventory of the items and their costs from the filename passed here "filename+'.csv'"
-        self.items      =   self.getInventory("ex41inventory")
+        # Dict for building an inventory of the items and their costs from the filename passed here
+        self.fileName   =   "ex41inventory.csv"
+        self.items      =   self.getInventory(self.fileName)
 
         # Print the introductory text
         print """
@@ -49,20 +50,21 @@ To complete the transaction and print the receipt, you can use the command "tota
 
     def getInventory(self, fileName):
         """Retreives the stored inventory data from the inventory datafile, """
-        inventoryData = csv.reader(open(fileName+".csv", 'rb'), delimiter=',')
-        itemLookup = {}
+        with open(fileName, 'rb') as invData:
+            inventoryData = csv.reader(invData, delimiter=',')
+            itemLookup = {}
 
-        for row in inventoryData:
-            if row[0] == 'name':
-                self.invTitlesCSV = row # set the first row to a titles variable for printing the file later
-            else:
-                self.currentInventory.append(row) # add all the other rows to the current inventory
+            for row in inventoryData:
+                if row[0] == 'name':
+                    self.invTitlesCSV = row # set the first row to a titles variable for printing the file later
+                else:
+                    self.currentInventory.append(row) # add all the other rows to the current inventory
         
-        for item in self.currentInventory:  # for every item, generate a price dict lookup
-            if item[3] == "FALSE":  # If Item isn't on sale
-                itemLookup[item[0]] = float(item[1]) # get the regular price
-            else:                   # otherwise, get the sale price
-                itemLookup[item[0]] = float(item[2])
+            for item in self.currentInventory:  # for every item, generate a price dict lookup
+                if item[3] == "FALSE":  # If Item isn't on sale
+                    itemLookup[item[0]] = float(item[1]) # get the regular price
+                else:                   # otherwise, get the sale price
+                    itemLookup[item[0]] = float(item[2])
 
         return itemLookup       # return the dict for looking up prices
 
@@ -135,8 +137,15 @@ To complete the transaction and print the receipt, you can use the command "tota
         else:
              self.items[item] = newItem[2]
         self.currentInventory.append(newItem)
-        
+        self.addItemToInventory(newItem) 
         print newItem
+
+    
+    def addItemToInventory(self, newItem):
+        """Adds a new item to the inventory data fil"""
+        with open(self.fileName, 'ab') as invFile:
+            invFileWrite = csv.writer(invFile)
+            invFileWrite.writerow(newItem)
 
 
 
@@ -193,4 +202,4 @@ for line in cr.printReceipt():      # ask the CashRegister to end the transactio
     print("\t"),
     print (line)
 
-cr.createItem(raw_input("What item would you like to add?  >> "))
+# ADMIN MODE COMMAND cr.createItem(raw_input("What item would you like to add?  >> "))
