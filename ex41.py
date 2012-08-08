@@ -74,16 +74,21 @@ To complete the transaction and print the receipt, you can use the command "tota
     def scanMode(self):
         """Asks for input and directs the register how to deal with it."""
         scanItem = raw_input("What is the item?  >> ")
-        if scanItem == "total":     # If the command 'total' is given, break the loop and complete the transaction
+        
+        
+        if "total" in scanItem:         # break the loop and complete the transaction
             print "\n"
             return False            # returning False breaks the loop
-        elif scanItem == "void":    # If the command 'void' is given, undo the last transaction processed
+            
+        elif "void" in scanItem:                # undo the last transaction processed
             self.voidItem()
             return True             # returning True continues the loop
-        elif scanItem == "createItem":
+            
+        elif  "createItem" in scanItem:          # add an intem to the inventory list
             cr.createItem(raw_input("What item would you like to add?  >> "))
-            return True
-        else:                       # Otherwise, assume the input is an item name
+            return True             # returning True continues the loop
+            
+        else:                    # Otherwise, assume the input is an item name
             try:
                 scanQuantity = float(raw_input("How many are being purchased?  >> "))
             except ValueError:
