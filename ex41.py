@@ -5,7 +5,9 @@ This file implements a CashRegister object, and when run boots a Cash Register o
 
 
 # Import statements
-import csv
+import csv, datetime
+
+date = datetime.datetime.now()
 
 
 class CashRegister(object):
@@ -201,7 +203,8 @@ To complete the transaction and print the receipt, you can use the command "tota
     def printReceipt(self):
         """Prints a header; the items purchased, their quantity, and the total for each item; a subtotal, discounts, taxes, the total, the method of payment, payment details (incl. change if applicable), and finally a footer"""
         receipt = []
-        receipt.append("\t\t%s\n" % (self.storeName))               # This is a very simple header for the receipt
+        for line in self.printHeader():         # Go look at the printHeader method.  This prints each line of that.
+            receipt.append(line)
 
         for item in self.receiptItems:                              # for each item scanned
             formattedItem = "%10s  of  %s at %12s  is  %12s" % ("%.3f" % (item[1]),item[0].ljust(self.nameWidth)[:self.nameWidth], self.currency(self.items[item[0]]), self.currency(float(item[1])*self.items[item[0]])) 
@@ -211,6 +214,17 @@ To complete the transaction and print the receipt, you can use the command "tota
         receipt.append(self.formatTotal().rjust(50 + self.nameWidth) + "\n")    # Display Subtotal
         receipt.append("Thank you for shopping at:\t%s\n" % (self.storeName))   # This is a simple footer
         return receipt
+
+
+    def printHeader(self):
+        """Assembles and returns a list of strings that make up the receipt header."""
+        header = []
+        header.append("\t\t%s" % (self.storeName))          # Indent and display the store name
+        header.append(date.strftime("%H:%M:%S %d-%b/%y"))   # Display a formated date/time string ( 23:59:59 31-Dec/99 )
+
+        header.append("\n")                                 # Insert a blank line
+        return header
+
 
 
 
