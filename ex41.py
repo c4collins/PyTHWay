@@ -222,8 +222,8 @@ To complete the transaction and print the receipt, you can use the command "tota
             header.append("%s" % item)
 
         header.append("")
-        header.append(date.strftime("%d-%h/%Y"))
-        header.append("")
+       # header.append(str(date.strftime("%d-%h/%Y")))                   BROKEN BUT UNIMPORTANT ###################################################
+       # header.append("")                                              ###########################################################################
 
         return header
 
