@@ -87,32 +87,38 @@ To complete the transaction and print the receipt, you can use the command "tota
             self.voidItem()
             return True             # returning True continues the loop
         elif "void" in scanItem:
-            trash, num = scanItem.split(" ")
-            self.voidItem(-int(num))
+            trash, num = scanItem.split(" ")    # Splits the void statement into two
+            try: 
+                self.voidItem(-int(num))            # Passes the optional argument to voidItem
+            except ValueError:
+                print "%r is not a number." % num
+
             return True 
         elif scanItem == "createItem":
             cr.createItem(raw_input("What item would you like to add?  >> "))
             return True
-        else:                       # Otherwise, assume the input is an item name
-            if scanItem in self.items:
-                try:
-                    scanQuantity = float(raw_input("How many are being purchased?  >> "))
-                except ValueError:
-                    print "That is not a valid number, the quantity has defaulted to 1"
-                    scanQuantity = 1
-    
-                self.addItem(scanItem, scanQuantity)    # add the item to the purchase
-                return True                             # returning True continues the loop
-            else:
-                print "Sorry, that item is not currently in stock, or is not part of the inventory.  Please try again."
-                return True            
+        else:   
+            return self.addItem(scanItem)     # Otherwise, assume the input is an item name
+            
+            
+            
 
 
-    def addItem(self, item, quantity):
+
+    def addItem(self, item):
         """Add an item to the bill, and set the lastChargeAdded to that amount."""
-        self.total += self.items[item] * quantity           # increase the total sales price
-        self.lastChargeAdded = self.items[item] * quantity  # set the lastChargeAdded to this transaction
-        self.receiptItems.append((item, quantity))          # add this transaction to the receipt
+        if item in self.items:
+            try:
+                quantity = float(raw_input("How many are being purchased?  >> "))
+            except ValueError:
+                print "That is not a valid number, the quantity has defaulted to 1"
+                quantity = 1
+            self.total += self.items[item] * quantity           # increase the total sales price
+            self.lastChargeAdded = self.items[item] * quantity  # set the lastChargeAdded to this transaction
+            self.receiptItems.append((item, quantity))          # add this transaction to the receipt
+        else:
+            print "Sorry, that item is not currently in stock, or is not part of the inventory.  Please try again."
+        return True                                            # returning True continues the loop        
 
 
 
@@ -144,7 +150,7 @@ To complete the transaction and print the receipt, you can use the command "tota
                 newItem[4] = float(raw_input("How many %s are in stock?  >> " % item))
                 break
             except ValueError:      # Patiently waits until an appropriate answer is given.
-                print "That is not a valid quantity.  Pretty much any number will do"
+                print "That is not a valid quantity.  Pretty much any number will do."
         
         if newItem[3] == "FALSE":       # If the item is not on sale
              self.items[item] = newItem[1]      # load the regular price into the price check list
@@ -168,15 +174,16 @@ To complete the transaction and print the receipt, you can use the command "tota
     def voidItem(self, index = -1):
         """Voids the most recent transaction"""
         try:                                                                    # unless there is nothing in the list of items to be included on the receipt
-            void = self.receiptItems.pop(index)                                      # remove the last item on the list
+            void = self.receiptItems.pop(index)                                 # remove the last item on the list by default, or whichever item was passed
             self.total -= self.items[void[0]] * void[1]                         # reduce the total by the appropriate amount
             print "%.3f of item: %s have been removed." % (void[1],void[0])     # print confirmation of the void
         except IndexError:  
-            print "There is nothing in the list at that postion."
+            print "There is nothing in the list at that postion."               # invalid index
             try:
-                print "The most recent item in the list is: %s" % self.items[-1][0]
+                print "The last item in the list is: %r" % self.receiptItems[-1][0] # tells the cashier what the most recent item added to the list is.
+                print "There are %d items on the list." % len(self.receiptItems)
             except IndexError:
-                print "There are no items currently accumulated on this register."
+                print "There are no items currently accumulated on this register." # no items
 
 
 
@@ -213,7 +220,7 @@ To complete the transaction and print the receipt, you can use the command "tota
         """Returns the receipt header text as a list of strings"""
         header = []
 
-        header.append("Thank you for shopping at:")
+        header.append("thank you for shopping at:")
         header.append("")
         header.append("%s" % self.storeName.upper())
         header.append("")
@@ -222,7 +229,7 @@ To complete the transaction and print the receipt, you can use the command "tota
             header.append("%s" % item)
 
         header.append("")
-       # header.append(str(date.strftime("%d-%h/%Y")))                   BROKEN BUT UNIMPORTANT ###################################################
+       # header.append(str(date.strftime("%d-%h/%y")))                   broken but unimportant ###################################################
        # header.append("")                                              ###########################################################################
 
         return header
@@ -234,23 +241,23 @@ To complete the transaction and print the receipt, you can use the command "tota
         items = []
 
         items.append("="*(55 +self.nameWidth))
-        items.append("%10s      %s%18s%12s" % ("Quantity","Item".ljust(self.nameWidth),"Per Unit","Price"))  #  Header Row
+        items.append("%10s      %s%18s%12s" % ("quantity","item".ljust(self.nameWidth),"per unit","price"))  #  header row
         items.append("="*(55 +self.nameWidth))
 
         for item in self.receiptItems:                              # for each item scanned
-            formattedItem = "%10s  of  %s at %12s  is  %12s" % ("%.3f" % (item[1]),item[0].ljust(self.nameWidth)[:self.nameWidth], self.currency(self.items[item[0]],True), self.currency(float(item[1])*self.items[item[0]]))       # Create a string with the following information:
+            formattedItem = "%10s  of  %s at %12s  is  %12s" % ("%.3f" % (item[1]),item[0].ljust(self.nameWidth)[:self.nameWidth], self.currency(self.items[item[0]],True), self.currency(float(item[1])*self.items[item[0]]))       # create a string with the following information:
             # the quantity
-            # The item name, to set width
-            # The per-unit cost, and
-            # The total cost (quantity * per-unit cost)
+            # the item name, to set width
+            # the per-unit cost, and
+            # the total cost (quantity * per-unit cost)
             
-            items.append(formattedItem)                     # Add it to the list
+            items.append(formattedItem)                     # add it to the list
        
         items.append("="*(55 +self.nameWidth))
         items.append("")
         
         if len(self.receiptItems) == 0:
-            items[1] = "No items have been scanned".center(55+self.nameWidth)
+            items[1] = "no items have been scanned".center(55+self.nameWidth)
             del items[2]
             
 
@@ -262,9 +269,9 @@ To complete the transaction and print the receipt, you can use the command "tota
         """Displays the total with a currency indicator."""
         totalLines = []
         
-        totalLines.append("The subtotal is %s".rjust(self.nameWidth) % (self.currency(self.total)))
-        totalLines.append("The freight cost is %s".rjust(self.nameWidth) % (self.currency(0)))
-        totalLines.append("The taxes (%s) is %s".rjust(self.nameWidth) % (self.taxName,self.currency(self.total*self.taxRate)))
+        totalLines.append("The subtotal is %s".rjust(57+self.nameWidth) % (self.currency(self.total)))
+        totalLines.append("The freight cost is %s".rjust(52+self.nameWidth) % (self.currency(0)))
+        totalLines.append("The taxes (%s) is %s".rjust(47+self.nameWidth) % (self.taxName,self.currency(self.total*self.taxRate)))
         totalLines.append("")
         totalLines.append("="*(55+self.nameWidth))
         totalLines.append("The total is %s".rjust(self.nameWidth) % (self.currency(self.total*(1+self.taxRate))))
