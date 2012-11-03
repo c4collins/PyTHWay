@@ -1,0 +1,11 @@
+Metadata-Version: 1.1
+Name: Test-Project
+Version: 0.1
+Summary: This project is showing that I know how to use the distutils as laid out in Learn Python the Hard Way, Exercise 46.
+Home-page: http://www.bittchinsdesign.ca/
+Author: Connor Collins
+Author-email: connorcollins@gmail.com
+License: UNKNOWN
+Download-URL: http://www.github.com/c4collins
+Description: UNKNOWN
+Platform: UNKNOWN

@@ -1,0 +1,9 @@
+README.txt
+setup.py
+Test_Project.egg-info/PKG-INFO
+Test_Project.egg-info/SOURCES.txt
+Test_Project.egg-info/dependency_links.txt
+Test_Project.egg-info/requires.txt
+Test_Project.egg-info/top_level.txt
+test_project/__init__.py
+test_project/hello_world.py
